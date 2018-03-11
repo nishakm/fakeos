@@ -3,12 +3,20 @@
 ## About the Author's Abilities
 This is my first real foray into Operating Systems. It has been years since I programmed in DOS. I have been develping on a Linux based machine for years now and hence my current experience is the reference point I choose to learn something new. With that in mind, here is my reference should anyone else want to use it:
 
-- Fedora VM and Ubuntu native install
-- git and gcc installed on both
+- Fedora VM
+- Ubuntu native install
 
 ## Learning Material
 FakeOS is based on the MIT online course on operating systems
 This does not follow any of the lab implementations but it does use some material from the first lab
+
+## Getting Started on Fedora
+- Install git and gcc (sudo dnf install git gcc)
+- Install qemu (sudo dnf install qemu)
+
+The qemu install has a list of binaries that go into /usr/bin/ and are prefixed by qemu-. The one I used is qemu-system-x86_64. The native architecture I use is x86_64. I haven't gotten to cross compiling at this point in time
+
+Lab1 of the MIT course requires you to untar lab1 which is a tar of the git history. I set the QEMU environment variable to the above qemu, and then ran make qemu getting the correct results.
 
 ## Sudy Guides
 - [MIT Online Course](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-828-operating-system-engineering-fall-2012/)
