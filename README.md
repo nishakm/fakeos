@@ -64,7 +64,43 @@ $ vim ~/.gdbinit
 add-auto-load-safe-path /home/username/path/to/lab/.gdbinit
 ```
 
-## A Note About Memory
+When running gdb in a second terminal, there will be a lot of licensing prose, which can be ignored for learning purposes. On my machine I get this output:
+
+```
+[f000:fff0]    0xffff0:	ljmp   $0x3630,$0xf000e05b
+0x0000fff0 in ?? ()
+```
+The first line is of the form:
+[CS:IP] instr address: instr arguments
+
+Where:
+- CS: Code Segment - a location in memory where the code is stored, calculated using 16xCS
+- IP: Instruction Pointer - an offset added to the above result
+- instr address - the location in memory where execution starts
+- instr - the instruction
+- arguments to the instruction
+
+In this case:
+- 16 x CS + IP ==> 16 x f000 = f0000; f0000 + fff0 = ffff0
+- 0xffff0 is 16 bytes before the top of the BIOS area of memory
+- ljmp is "jump"
+- 0x3630 is jump to this CS (earlier in the BIOS)
+- 0xf000e05b is the IP which is different from the lab because it is 32 bits rather than 16 bits and that is all the way into the top of the extended memory location but before the memory mapped PCI device location reserved by the BIOS
+
+The processor is designed to look for the first instruction within the BIOS memory range. After checking for peripherals, it looks for a bootable disk. When it finds it, it will read the bootloader and load it into the memory.
+
+There is a prescribed memory location for this for a bootloader stored in the hard drive of a PC.
+
+```
+(gdb) b *0x7c00 <-- set breakpoint to 0x7c00 which is the memory location for the bootloader
+Breakpoint 1 at 0x7c00
+(gdb) c
+Continuing.
+The target architecture is assumed to be i8086
+[   0:7c00] => 0x7c00:	cli    
+``` 
+
+## Notes About Memory
 
 Memory locations are addressable here using 32 bits. In x86_64 CPUs they are addressed using 64 bits. For a 32 bit processor the memory can go up to 2^32 address locations. meaning 4294967296 Bytes (if each memory location can hold 8 bits). Divide the number by 1024 (rather than 1000) 3 times and you get 4 GiB of memory. All the memory ranges described in lab1 follow hexadecimal memory mapping and factoring by 1024 rather than 1000 to calculate KiB and MiB.
 
@@ -74,7 +110,8 @@ Key things to remember:
 - 0x000A0000 - 0x00100000 (384KiB) Memory hole
 - 0x00100000 -> (RAM limit) Extended Memory
 - 0xFFFFFFFF -> (whatever BIOS reserves) For memory mapped 32 bit PCI devices
-- 0x000F0000 - 0x00100000 (64KiB) Where BIOS used to be (they life in flash memory now)
+- 0x000F0000 - 0x00100000 (64KiB) Where BIOS used to be (they live in flash memory now)
+- 0x00007C00 - 0x00007DFF memory where bootloader is saved to (for hard drives so it can only be 512 bytes)
 
 ## Sudy Guides
 - [MIT Online Course](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-828-operating-system-engineering-fall-2012/)
